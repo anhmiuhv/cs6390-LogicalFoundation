@@ -712,7 +712,7 @@ Fixpoint factorial (n:nat) : nat :=
   match n with
   | 0 => 1
   | 1 => 1
-  | S n => mult (n (factorial (n - 1)))
+  | S n => mult (n (factorial (minus n 1)))
   end.
 
 Example test_factorial1:          (factorial 3) = 6.

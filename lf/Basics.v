@@ -711,8 +711,7 @@ Fixpoint exp (base power : nat) : nat :=
 Fixpoint factorial (n:nat) : nat :=
   match n with
   | 0 => 1
-  | 1 => 1
-  | S n => mult (n (factorial (minus n 1)))
+  | S n' => S n' * factorial n'
   end.
 
 Example test_factorial1:          (factorial 3) = 6.
@@ -807,18 +806,19 @@ Proof. simpl. reflexivity.  Qed.
     function.  (It can be done with just one previously defined
     function, but you can use two if you need to.) *)
 
-Definition ltb (n m : nat) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
-
+Definition ltb (n m : nat) : bool := leb n m && negb (eqb n m).
 Notation "x <? y" := (ltb x y) (at level 70) : nat_scope.
 
 Example test_ltb1:             (ltb 2 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity.  Qed.
 Example test_ltb2:             (ltb 2 4) = true.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity.  Qed.
 Example test_ltb3:             (ltb 4 2) = false.
-(* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity.  Qed.
+
+Print test_ltb1.
 (** [] *)
+
 
 (* ################################################################# *)
 (** * Proof by Simplification *)
