@@ -290,34 +290,50 @@ Proof. reflexivity.  Qed.
     [countoddmembers] below. Have a look at the tests to understand
     what these functions should do. *)
 
-Fixpoint nonzeros (l:natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint nonzeros (l:natlist) : natlist :=
+  match l with
+  | nil => nil
+  | O :: h => nonzeros h
+  | n :: h => n :: nonzeros h
+  end.
+
+
 
 Example test_nonzeros:
   nonzeros [0;1;0;2;3;0;0] = [1;2;3].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
-Fixpoint oddmembers (l:natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint oddmembers (l:natlist) : natlist :=
+  match l with
+  | nil => nil
+  | a :: b => match evenb a with
+              | true => oddmembers b
+              | false => a :: oddmembers b
+              end
+  end.
+
 
 Example test_oddmembers:
   oddmembers [0;1;0;2;3;0;0] = [1;3].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
-Definition countoddmembers (l:natlist) : nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition countoddmembers (l:natlist) : nat :=
+  length (oddmembers l).
+ 
+
 
 Example test_countoddmembers1:
   countoddmembers [1;0;3;1;4;5] = 4.
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_countoddmembers2:
   countoddmembers [0;2;4] = 0.
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_countoddmembers3:
   countoddmembers nil = 0.
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
+
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced (alternate)  
@@ -334,24 +350,32 @@ Example test_countoddmembers3:
     of both lists at the same time.  One possible solution involves
     defining a new kind of pairs, but this is not the only way.)  *)
 
-Fixpoint alternate (l1 l2 : natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint alternate (l1 l2 : natlist) : natlist :=
+  match l1, l2 with
+  | nil, nil => nil
+  | a :: b, a1 :: b1 => a :: a1 :: alternate b b1
+  | a, nil => a
+  | nil, b => b
+  end.
+
 
 Example test_alternate1:
   alternate [1;2;3] [4;5;6] = [1;4;2;5;3;6].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_alternate2:
   alternate [1] [4;5;6] = [1;4;5;6].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_alternate3:
   alternate [1;2;3] [4] = [1;4;2;3].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
+
 
 Example test_alternate4:
   alternate [] [20;30] = [20;30].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
+
 (** [] *)
 
 (* ----------------------------------------------------------------- *)
@@ -805,18 +829,27 @@ Proof.
 
 Theorem app_nil_r : forall l : natlist,
   l ++ [] = l.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof.  intros l. induction l as [| n l' IHl'].
+  - (* l = nil *)
+    reflexivity.
+  - (* l = cons *)
+    simpl. rewrite -> IHl'. reflexivity. Qed.
 
 Theorem rev_app_distr: forall l1 l2 : natlist,
   rev (l1 ++ l2) = rev l2 ++ rev l1.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros. induction l1 as [|n l1' IHl1'].
+       - simpl. rewrite -> app_nil_r. reflexivity.
+       - simpl. rewrite -> IHl1'. rewrite -> app_assoc. reflexivity.
+         Qed.
+         
 
 Theorem rev_involutive : forall l : natlist,
   rev (rev l) = l.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros. induction l.
+       - simpl. reflexivity.
+       - simpl. rewrite -> rev_app_distr. rewrite -> IHl.  reflexivity. Qed.
+
+         
 
 (** There is a short solution to the next one.  If you find yourself
     getting tangled up, step back and try to look for a simpler
@@ -825,14 +858,25 @@ Proof.
 Theorem app_assoc4 : forall l1 l2 l3 l4 : natlist,
   l1 ++ (l2 ++ (l3 ++ l4)) = ((l1 ++ l2) ++ l3) ++ l4.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction l1.
+  - simpl. rewrite -> app_assoc. reflexivity.
+    - simpl. rewrite -> IHl1. reflexivity.
+ Qed.
 
 (** An exercise about your implementation of [nonzeros]: *)
 
 Lemma nonzeros_app : forall l1 l2 : natlist,
   nonzeros (l1 ++ l2) = (nonzeros l1) ++ (nonzeros l2).
-Proof.
-  (* FILL IN HERE *) Admitted.
+
+Proof. intros. induction l1 as [|n l1' IHl1'].
+       - simpl. reflexivity.
+       - {
+           simpl. destruct n.
+         case 0. rewrite -> IHl1'. reflexivity.
+         case (S n).  rewrite -> IHl1'. simpl. reflexivity.
+         }
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (eqblist)  

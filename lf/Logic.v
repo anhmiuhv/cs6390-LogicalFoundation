@@ -456,7 +456,9 @@ Definition manual_grade_for_double_neg_inf : option (nat*string) := None.
 Theorem contrapositive : forall (P Q : Prop),
   (P -> Q) -> (~Q -> ~P).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold not.
+  intros. destruct H0.
+  apply H. apply H1. Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard (not_both_true_and_false)  *)
@@ -479,6 +481,7 @@ Definition manual_grade_for_informal_not_PNP : option (nat*string) := None.
 
 (** Similarly, since inequality involves a negation, it requires a
     little practice to be able to work with it fluently.  Here is one
+
     useful trick.  If you are trying to prove a goal that is
     nonsensical (e.g., the goal state is [false = true]), apply
     [ex_falso_quodlibet] to change the goal to [False].  This makes it
@@ -586,7 +589,23 @@ Proof.
 Theorem or_distributes_over_and : forall P Q R : Prop,
   P \/ (Q /\ R) <-> (P \/ Q) /\ (P \/ R).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  split.
+  - intros []. split.
+      left. apply H.
+      left. apply H.
+      split.
+        right. apply H.
+        right. apply H.
+    
+  - {
+      intros [Hn Hj]. destruct Hn.
+      - left. apply H.
+      - destruct Hj.
+        left. apply H0.
+        right. split. apply H. apply H0.  
+    } Qed.
+    
 (** [] *)
 
 (** Some of Coq's tactics treat [iff] statements specially, avoiding
@@ -608,6 +627,7 @@ Proof.
 Qed.
 
 Lemma or_assoc :
+
   forall P Q R : Prop, P \/ (Q \/ R) <-> (P \/ Q) \/ R.
 Proof.
   intros P Q R. split.
@@ -625,6 +645,7 @@ Qed.
     give smooth proofs of statements involving equivalences.  Here is
     a ternary version of the previous [mult_0] result: *)
 
+
 Lemma mult_0_3 :
   forall n m p, n * m * p = 0 <-> n = 0 \/ m = 0 \/ p = 0.
 Proof.
@@ -632,6 +653,7 @@ Proof.
   rewrite mult_0. rewrite mult_0. rewrite or_assoc.
   reflexivity.
 Qed.
+
 
 (** The [apply] tactic can also be used with [<->]. When given an
     equivalence as its argument, [apply] tries to guess which side of
@@ -687,7 +709,8 @@ Proof.
 Theorem dist_not_exists : forall (X:Type) (P : X -> Prop),
   (forall x, P x) -> ~ (exists x, ~ P x).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. unfold not. intros. destruct H0.
+  apply H0. apply H. Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (dist_exists_or)  

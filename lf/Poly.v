@@ -778,11 +778,21 @@ Proof. reflexivity.  Qed.
 
     Show that [map] and [rev] commute.  You may need to define an
     auxiliary lemma. *)
+Lemma map_assoc : forall(X Y : Type) (f: X -> Y) (l : list X) (x: X),
+    map f (l ++ [x]) = map f l ++ [f x].
+Proof. intros. induction l.
+       - simpl. reflexivity.
+       - simpl. rewrite <- IHl. reflexivity.
+         Qed.
+         
 
 Theorem map_rev : forall (X Y : Type) (f : X -> Y) (l : list X),
   map f (rev l) = rev (map f l).
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. intros. induction l.
+       - simpl. reflexivity.
+       - simpl. rewrite <- IHl. rewrite <- map_assoc. reflexivity.
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, recommended (flat_map)  
@@ -960,8 +970,9 @@ Proof. reflexivity. Qed.
 
 Theorem fold_length_correct : forall X (l : list X),
   fold_length l = length l.
-Proof.
-(* FILL IN HERE *) Admitted.
+Proof. intros. induction l.
+       - reflexivity.
+       - simpl. rewrite <- IHl. reflexivity. Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard (fold_map)  

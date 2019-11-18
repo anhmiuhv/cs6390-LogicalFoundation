@@ -969,7 +969,12 @@ Proof.
 Theorem plus_id_exercise : forall n m o : nat,
   n = m -> m = o -> n + m = m + o.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros .
+  rewrite H.
+  rewrite H0.
+  reflexivity.
+Qed.
+
 (** [] *)
 
 (** The [Admitted] command tells Coq that we want to skip trying
@@ -1229,8 +1234,22 @@ Qed.
 Theorem andb_true_elim2 : forall b c : bool,
   andb b c = true -> c = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros [] [].
+  - reflexivity.
+  - {
+      intros H.
+      rewrite <- H.
+      reflexivity.
+    }
+  - reflexivity.
+  - {
+      intros H.
+      rewrite <- H.
+      reflexivity.
+    }
+Qed.
 (** [] *)
+Print andb_true_elim2.
 
 (** **** Exercise: 1 star, standard (zero_nbeq_plus_1)  *)
 Theorem zero_nbeq_plus_1 : forall n : nat,
@@ -1415,11 +1434,22 @@ Inductive bin : Type :=
         for binary numbers, and a function [bin_to_nat] to convert
         binary numbers to unary numbers. *)
 
-Fixpoint incr (m:bin) : bin
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint incr (m:bin) : bin :=
+  match m with
+  | Z => B Z
+  | A m' => B m'              
+  | B m' => A (incr m')
+  end.
 
-Fixpoint bin_to_nat (m:bin) : nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+
+Fixpoint bin_to_nat (m:bin) : nat :=
+  match m with
+  | Z => 0
+  | B m' => S (bin_to_nat m' + bin_to_nat m')
+  | A m' => bin_to_nat m'+ bin_to_nat m'
+  end.
+
+                        
 
 (**    (b) Write five unit tests [test_bin_incr1], [test_bin_incr2], etc.
         for your increment and binary-to-unary functions.  (A "unit
@@ -1430,6 +1460,17 @@ Fixpoint bin_to_nat (m:bin) : nat
         first converting it to unary and then incrementing. *)
 
 (* FILL IN HERE *)
+Example test_bin_incr1:             (bin_to_nat (incr (A (B (A (B Z)))))) = 11.
+Proof. simpl. reflexivity.  Qed.
+Example test_bin_incr2:             (bin_to_nat (incr (A (A (B Z))))) = 5.
+Proof. simpl. reflexivity.  Qed.
+Example test_bin_incr3:             (bin_to_nat (incr (B (B (A (A (B (A (B Z))))))))) = 84.
+Proof. simpl. reflexivity.  Qed.
+Example test_bin_incr4:             (bin_to_nat (incr (B (B (B (B (B (B (B Z))))))))) = 128.
+Proof. simpl. reflexivity.  Qed.
+Example test_bin_incr5:             (bin_to_nat (incr (A (A (A (A (A (A (B Z))))))))) = 65.
+Proof. simpl. reflexivity.  Qed.
+
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_binary : option (nat*string) := None.

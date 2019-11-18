@@ -148,8 +148,12 @@ Qed.
 Theorem ev_double : forall n,
   even (double n).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros. simpl.
+  rewrite double_plus. induction n.
+  - apply ev_0.
+  - simpl. rewrite <-  plus_n_Sm. apply ev_SS. apply IHn.
+Qed.
+
 
 (* ################################################################# *)
 (** * Using Evidence in Proofs *)
@@ -302,8 +306,12 @@ Proof.
 Theorem even5_nonsense :
   even 5 -> 2 + 2 = 9.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros.
+  inversion H.
+  inversion H1.
+  inversion H3.
+Qed.
+
 
 (** The [inversion] tactic does quite a bit of work. When
     applied to equalities, as a special case, it does the work of both
@@ -483,8 +491,16 @@ Proof.
 Theorem ev_ev__ev : forall n m,
   even (n+m) -> even n -> even m.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+
+  intros.
+  induction H0.
+  -  apply H.
+  -  simpl.
+  inversion H.
+  apply IHeven.
+  apply H2.
+Qed.  
+
 
 (** **** Exercise: 3 stars, standard, optional (ev_plus_plus)  
 
@@ -614,30 +630,45 @@ Inductive next_even : nat -> nat -> Prop :=
     Here are a number of facts about the [<=] and [<] relations that
     we are going to need later in the course.  The proofs make good
     practice exercises. *)
+Lemma le_helpers: forall m n, S n <= m -> n <= m.
+Proof.
+  intros.
+  inversion H. apply le_S. apply le_n.
+  simpl. rewrite H1. rewrite <- H. apply le_S. apply le_n. Qed.
+
+                                           
 
 Lemma le_trans : forall m n o, m <= n -> n <= o -> m <= o.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction H. apply H0.
+  simpl. apply IHle. apply le_helpers in H0. apply H0.
+Qed.
 
 Theorem O_le_n : forall n,
   0 <= n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  induction n. apply le_n.
+  simpl. apply le_S. apply IHn. Qed.
 
 Theorem n_le_m__Sn_le_Sm : forall n m,
   n <= m -> S n <= S m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction H. apply le_n.
+  simpl.  apply le_S in IHle. rewrite IHle. apply le_n. Qed.
 
 Theorem Sn_le_Sm__n_le_m : forall n m,
   S n <= S m -> n <= m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. inversion H. apply le_n.
+  simpl. apply le_helpers in H1. apply H1. Qed.
+                
 
 Theorem le_plus_l : forall a b,
   a <= a + b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction a. apply O_le_n.
+  simpl. apply n_le_m__Sn_le_Sm. apply IHa. Qed.
 
 Theorem plus_lt : forall n1 n2 m,
   n1 + n2 < m ->
@@ -652,10 +683,12 @@ Theorem lt_S : forall n m,
 Proof.
   (* FILL IN HERE *) Admitted.
 
+
 Theorem leb_complete : forall n m,
   n <=? m = true -> n <= m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+
+(* FILL IN HERE *) Admitted.
 
 (** Hint: The next one may be easiest to prove by induction on [m]. *)
 

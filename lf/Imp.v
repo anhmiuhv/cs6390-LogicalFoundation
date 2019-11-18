@@ -798,16 +798,49 @@ Qed.
     [aevalR], and prove that it is equivalent to [beval]. *)
 
 Inductive bevalR: bexp -> bool -> Prop :=
-(* FILL IN HERE *)
+| E_BT : bevalR BTrue true
+| E_BF: bevalR BFalse false
+| E_BEq (a1 a2 : aexp) (n1 n2 : nat):
+    (a1 \\ n1) -> (a2 \\ n2) ->  bevalR (BEq a1 a2) (n1 =? n2)
+| EBLe (a1 a2 : aexp) (n1 n2 : nat):
+    (a1 \\ n1) -> (a2 \\ n2) -> bevalR (BLe a1 a2) (n1 <=? n2)
+| EBNot (be: bexp) (b: bool):
+    (bevalR be b) -> (bevalR (BNot be) (negb b))
+| EBAnd (be1 be2: bexp) (b1 b2: bool):
+    (bevalR be1 b1) -> (bevalR be2 b2) -> bevalR (BAnd be1 be2) (andb b1 b2)
 .
+
 
 Lemma beval_iff_bevalR : forall b bv,
   bevalR b bv <-> beval b = bv.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
-
+  split.
+  - {
+      (* -> *)
+      intros.
+      induction H; try ( subst; reflexivity);
+        try ( 
+      simpl;
+      apply aeval_iff_aevalR in H0;
+      apply aeval_iff_aevalR in H;
+      subst;
+      reflexivity).
+    }
+  - {
+      generalize dependent bv.
+     induction b; simpl; intros; subst; constructor;
+        try reflexivity;
+                          
+        try rewrite aeval_iff_aevalR;
+      
+        try apply IHb; try reflexivity;
+          try apply IHb1; try reflexivity;
+            try apply IHb2; try reflexivity.       
+            
+      }
+Qed.
 End AExp.
+
 
 (* ================================================================= *)
 (** ** Computational vs. Relational Definitions *)
@@ -1469,8 +1502,12 @@ Example ceval_example2:
     X ::= 0;; Y ::= 1;; Z ::= 2
   ]=> (Z !-> 2 ; Y !-> 1 ; X !-> 0).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  apply E_Seq with (X !-> 0).
+  - apply E_Ass. reflexivity.
+  - apply E_Seq with (Y !-> 1; X!->0). apply E_Ass. reflexivity.
+      apply E_Ass. reflexivity. Qed.
+    
+
 
 (** **** Exercise: 3 stars, standard, optional (pup_to_n)  
 
@@ -1585,8 +1622,11 @@ Proof.
       [loopdef] terminates.  Most of the cases are immediately
       contradictory (and so can be solved in one step with
       [discriminate]). *)
+  induction contra; inversion Heqloopdef.
+  rewrite H1 in H. inversion H.
+  apply IHcontra2. subst. reflexivity. Qed.
 
-  (* FILL IN HERE *) Admitted.
+  (* FILL IN HERE *) 
 (** [] *)
 
 (** **** Exercise: 3 stars, standard (no_whiles_eqv)  
@@ -1702,19 +1742,33 @@ Inductive sinstr : Type :=
 Fixpoint s_execute (st : state) (stack : list nat)
                    (prog : list sinstr)
                  : list nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := match (prog, stack) with
+     | (nil, _ ) => stack
+     | (SPush n :: prog', _) => s_execute st (n :: stack) prog'
+     | (SLoad x :: prog', _) => s_execute st (st x :: stack) prog'
+     | (SPlus :: prog', a :: b :: stack') => s_execute st
+                                                       ((a + b) :: stack') prog'
+     | (SMult :: prog', a :: b :: stack') => s_execute st ((a * b) :: stack') prog'
+     | ( SMinus :: prog', a :: b :: stack') => s_execute st ((b - a) :: stack') prog'
+     | (_:: prog', _) => s_execute st stack prog'
+                                   
+     end.
+     
+                                                                 
+                                         
 
 Example s_execute1 :
      s_execute empty_st []
        [SPush 5; SPush 3; SPush 1; SMinus]
    = [2; 5].
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example s_execute2 :
      s_execute (X !-> 3) [3;4]
        [SPush 4; SLoad X; SMult; SPlus]
-   = [15; 4].
-(* FILL IN HERE *) Admitted.
+     = [15; 4].
+Proof. reflexivity. Qed.
+
 
 (** Next, write a function that compiles an [aexp] into a stack
     machine program. The effect of running the program should be the
