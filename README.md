@@ -1,1 +1,1 @@
-# pl-course-gatech
+# cs6390 - Georgia Tech Logical Foundation course
